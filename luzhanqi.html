@@ -1,0 +1,371 @@
+<html>
+<head>
+    <title>comp3421 assignment1 question1</title>
+    
+    <style>
+    /* for chess board background */
+    div#chessboardImg{
+        background: url(img/Luzhanqi_chessboard.jpg) no-repeat;
+        padding: 0%;
+        height: 555px;
+        width: 400px;        
+    }
+    
+    table, th, td {
+        table-layout: fixed;
+        border: 1px solid black;
+        border-collapse: collapse;
+    }  
+    
+    /* for fixed height & width of each image(chess) in the table */
+    #realboard > div {
+        width: 70px;
+        height: 40px;
+        padding: 10px;
+        overflow: hidden; 
+    }
+    td { height: 40px; }
+    
+    /* the following 3 blocks for cover the enery chess */
+    #realboard div {
+        width: 47px;
+        height: 22px;
+        padding-left: 15px; 
+        position: relative;
+        //border: 1px solid #000;
+    }
+    #realboard img {
+        position:relative;
+        width: 47px;
+        height: 22px;          
+        z-index: 1;
+        
+    }
+    img.cover {
+        position:relative;
+        width: 47px;
+        height: 22px;
+        top: -22px;
+        left: 0px;          
+        z-index: 2;   
+    }
+    
+    div#buttons {
+        position:relative;
+        width: 625px;
+        height: 40px;
+        top: 0px;
+        left: 0px;          
+        z-index: 3;   
+    }
+    </style>
+
+    <script type="text/javascript" src="scripts/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="scripts/jquery-ui.js"></script>
+    <script type="text/javascript">    
+    
+    // array for 13 chess
+    var chess = new Array(13);
+    chess[0] = "img/Siling.png";
+    chess[1] = "img/Junzhang.png";
+    chess[2] = "img/Shizhang.png";
+    chess[3] = "img/Luzhang.png";
+    chess[4] = "img/Tuanzhang.png";
+    chess[5] = "img/Yinzhang.png";
+    chess[6] = "img/Lianzhang.png";
+    chess[7] = "img/Paizhang.png";
+    chess[8] = "img/Gongbing.png";
+    chess[9] = "img/Zhadan.png";
+    chess[10] = "img/Dilei.png";
+    chess[11] = "img/Junqi.png";
+    
+    var chess1 = 0; // take my chess index to compare
+    var chess2 = 0; // take enery chess index to compare
+    var step = 0;   // for count steps to decide who move 
+    //var move = 0;   // to see who move now, you(0) or computer(1)
+    var second = 0; // set time limit
+    var timeCount = 0; // countdown seconds
+    var stoptime; // for stop the timer
+    var intervalID; // stop interval
+    var i = 0;  // for the "id" in each <td>
+    var tdid = 0; // last td id
+    
+    
+    //// JQuery start here
+    $(function() {		
+        //// for drag & drop by JQuery sortable function
+        $("tbody").sortable({
+            items: "div",
+            placeholder: "ui-state-highlight"
+        });
+        
+                
+        //// add a empty div since the entire <div> tag was moved,
+        //// so the empty div for others chess drag to the original cell
+        addDivInEmptyTD();
+        
+        // add id in each div for silly AI to move
+        $("#realboard td").each(function(){            
+            $(this).prop( "id", i++ );          
+        });
+        
+        //// for get the chess name of img
+        $("#realboard td").click(function(){
+			//// just count the steps, maybe odd AI move, even you move
+            //console.log("step: " + step);
+            step = step + 1; 
+            
+            stopCount();
+            
+            // get two chess names as Object assign to var twoChess
+            var twoChess = $(this).find(".chess").map(function(){
+						   return $(this).attr("src")}).get();  
+            
+            //// for debug use
+            //console.log(twoChess);
+            //alert(twoChess[0]==twoChess[1]);
+            //console.log(twoChess[0]+" vs "+twoChess[1]); 
+            
+            //// find the image src of two chesses
+            findImgSrc(twoChess);
+            
+            console.log(chess1 + " vs " + chess2); 
+            //console.log(typeof twoChess[1]);
+            
+            //// after took that 2 index num in to chess1 & chess2,
+            //// now decide which one is weakerby function compareChess             
+            var cmpThisCell = $(this);	
+            //console.log(cmpThisCell);
+            compareChess(cmpThisCell, twoChess);
+            
+            //// remove the empty div because it will occupy the <td> space and make the height increased
+            $(".useless").remove();
+            
+            //// computer AI program try to move on9ly 
+            if(step%2 == 1){
+				$("#realboard td").each(function() {
+					//console.log( $("table td").find("img[name='enchess']").parent().parent().last().get(0).id );
+					tdid = parseInt($("#realboard td").find("img[name='enchess']").parent().parent().last().get(0).id);
+				});
+				
+				if( tdid%5==0 || tdid%5==2 || tdid%5==4 ){					
+					//console.log($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());				
+					$("#" + tdid).children().insertAfter($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());					
+				}
+				else{
+					//console.log($("#" + tdid).next().children());
+					$("#" + tdid).children().insertAfter($("#" + tdid).next().children());					
+				}
+				
+				//console.log($("table td").find("img[name='enchess']").parent().parent().last());
+				
+				cmpThisCell = $("#realboard td").find("img[name='enchess']").parent().parent().last();
+				twoChess = $(cmpThisCell).find(".chess").map(function(){
+						   return $(this).attr("src")}).get(); 
+				findImgSrc(twoChess);				
+				
+				compareChess(cmpThisCell, twoChess);
+				
+                //// AI moved one step
+                step = step + 1;
+            }
+            
+            //// remove the empty div because it will occupy the <td> space and make the height increased
+            //$(".useless").remove();
+            
+            //// add a empty div since the entire <div> tag was moved,
+            //// so the empty div for others chess drag to the original cell
+            addDivInEmptyTD();    
+            
+            //// count the time again after each move
+            startCount(second);
+        });        
+        
+        
+        function findImgSrc(twoChess){
+			// loop through the chess array to find the chess index for compare
+            for(var i=0; i<chess.length; i++){                
+                if(twoChess[0] == chess[i]){                    
+                    chess1 = chess.indexOf(chess[i]);
+                }
+                if(twoChess[1] == chess[i]){                     
+                    chess2 = chess.indexOf(chess[i]);                    
+                }
+            }
+        }
+        
+        
+        //// Actural rules and logic start as below function
+        function compareChess(cmpThisCell,twoChess){
+            if(chess2 > -1 && chess1 > -1){
+                if(chess1==8 && chess2==10){ // if chess1 is engineer & chess2 is landmine
+                    $(cmpThisCell).find("img[src='" + chess[chess2] + "']").parent("div").remove();
+                }
+                else if(chess2==8 && chess1==10){ // if chess2 is engineer & chess1 is landmine
+                    $(cmpThisCell).find("img[src='" + chess[chess1] + "']").parent("div").remove();
+                }
+                else if(chess1==9 || chess2==9){ // if bombs, die together
+                    if($(cmpThisCell).find("img[name='enchess']") && twoChess[1] == chess[0]){                        
+                        $(".cover").hide();	     // if compter commander dead, all chess reveal
+                    }
+                    if($(cmpThisCell).find("img[name='enchess']") && twoChess[0] == chess[0]){                        
+                        $(".cover").hide();	     // if compter commander dead, all chess reveal
+                    }
+                    $(cmpThisCell).find("img[src='" + chess[chess2] + "']").parent("div").remove();
+                    $(cmpThisCell).find("img[src='" + chess[chess1] + "']").parent("div").remove();
+                }
+                else if(chess1==10){ //chess1 is landmine
+                    if($(cmpThisCell).find("img[name='enchess']") && twoChess[1] == chess[0]){                        
+                        $(".cover").hide();	     // if compter commander dead, all chess reveal
+                    }
+                    if($(cmpThisCell).find("img[name='enchess']") && twoChess[0] == chess[0]){                        
+                        $(".cover").hide();	     // if compter commander dead, all chess reveal
+                    }
+                    $(cmpThisCell).find("img[src='" + chess[chess2] + "']").parent("div").remove();
+                }
+                else if(chess2==10){ //chess2 is landmine
+                    if($(cmpThisCell).find("img[name='enchess']") && twoChess[1] == chess[0]){                        
+                        $(".cover").hide();	
+                    }
+                    if($(cmpThisCell).find("img[name='enchess']") && twoChess[0] == chess[0]){                        
+                        $(".cover").hide();	
+                    }
+                    $(cmpThisCell).find("img[src='" + chess[chess1] + "']").parent("div").remove();
+                }
+                else if(chess1 == chess2){ // if both at same rank, die together
+                    console.log("die together");   
+                    $(cmpThisCell).find("img[src='" + chess[chess2] + "']").parent("div").remove();
+                    $(cmpThisCell).find("img[src='" + chess[chess1] + "']").parent("div").remove();
+                }
+                else if(chess2 < chess1){  // if i am stronger, remove enery div
+                   console.log("i big");                   
+                   $(cmpThisCell).find("img[src='" + chess[chess1] + "']").parent("div").remove();
+                }
+                else{                   // if i am weak, remove my div
+                   console.log("i small");                    
+                   $(cmpThisCell).find("img[src='" + chess[chess2] + "']").parent("div").remove();               
+                }
+            }  
+		}        
+        
+        // reveal enery chess's cover temporarily. Debug/Cheating use
+        $("#cheat").mousedown(function(){			
+			$(".cover").hide();			
+        });
+        $("#cheat").mouseup(function(){			
+			$(".cover").show();			
+        });
+        
+        
+        // for add a empty div in the table td for sortable function to drag and drop
+        function addDivInEmptyTD(){
+            $("#realboard td").each(function(){
+                if($.trim($(this).html())==''){
+                    $(this).append( "<div class='useless'></div>" );
+                }
+            });
+        }
+        
+        // set timer based on user input
+        $("#start").click(function(){	
+			second = parseInt(document.getElementById("second").value)*1000; // to milliseconds
+			//console.log(second);
+			startCount(second); // 5000			
+        });        
+        function startCount(second) {           
+			timeCount = second/1000;			
+			//console.log("sec: " + second);
+			//console.log("time: " + timeCount);
+			stoptime = setTimeout(timeout, second);            
+            intervalID = setInterval(countDown, 1000);
+		}        
+        function countDown(){            
+            document.getElementById("second").value = timeCount--;
+        }
+        
+		function stopCount() {
+            //console.log("stop: " + stoptime);	
+			clearTimeout(stoptime);	
+            clearInterval(intervalID);
+		}
+        
+        function timeout() {
+            stopCount();
+			//alert("Timeout!");
+		}
+		
+		// useless stop function
+		$("#stop").click(function(){
+            stopCount();
+			alert("bye bye!");
+        });
+    });
+     
+    </script>
+    
+</head>
+    <body>
+        <h3>Question 1: Luzhanqi</h3>  
+        <hr>
+        <b>Notes:</b>
+        <ul>
+            <li>Please use firefox for fully functionalities because you can see which chess lost immediately after each drag & drop.</li>
+            <li>If you use google chrome, please click on the < td > after each drag & drop to see which chess lost.</li>
+            <li>If you want the timer, please uncomment line 294 in the source code. maxium can set to 99 seconds.</li>
+            <li>stupid AI implemented, need to debug.</li>
+            <li>The source code can download in the github: <a href="./q1.html">here</a></li>
+        </ul>
+        <hr>
+        <div id="buttons">
+            select time(second) per step: <input id="second" type="text" maxlength="2" size="2" />
+            <button id="start">start</button> 
+            <button id="stop">stop</button>  
+			<button id="cheat">cheat</button>
+        </div>
+                
+        <div id="chessboardImg">       
+        <table id="realboard" style="width: 400px; height: 554px;">
+            <tr>
+                <td><div><img class="chess" name="enchess" src="img/Dilei.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Junqi.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Dilei.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Zhadan.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Zhadan.png"><img class="cover" src="img/cover.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="enchess" src="img/Gongbing.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Dilei.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Gongbing.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Junzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Gongbing.png"><img class="cover" src="img/cover.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="enchess" src="img/Yingzhang.png"><img class="cover" src="img/cover.png"></div></td><td></td><td><div><img class="chess" name="enchess" src="img/Yingzhang.png"><img class="cover" src="img/cover.png"></div></td><td></td><td><div><img class="chess" name="enchess" src="img/Tuanzhang.png"><img class="cover" src="img/cover.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="enchess" src="img/Siling.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Shizhang.png"><img class="cover" src="img/cover.png"></div></td><td></td><td><div><img class="chess" name="enchess" src="img/Shizhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Tuanzhang.png"><img class="cover" src="img/cover.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="enchess" src="img/Paizhang.png"><img class="cover" src="img/cover.png"></div></td><td></td><td><div><img class="chess" name="enchess" src="img/Paizhang.png"><img class="cover" src="img/cover.png"></div></td><td></td><td><div><img class="chess" name="enchess" src="img/Paizhang.png"><img class="cover" src="img/cover.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="enchess" src="img/Lianzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Lianzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Lianzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Luzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" name="enchess" src="img/Luzhang.png"><img class="cover" src="img/cover.png"></div></td>
+            </tr>
+            <!--^^^^^^^^^  enery chess  ^^^^^^^^^^-->
+            <tr><td> </td><td> </td><td> </td><td> </td><td> </td></tr>
+            <!--VVVVVVVVVV  your chess  VVVVVVVVVV-->
+            <tr>
+                <td><div><img class="chess" name="mychess" src="img/Lianzhang.png"></div></td><td><div><img class="chess" name="mychess" src="img/Junzhang.png"></div></td><td><div><img class="chess" name="mychess" src="img/Lianzhang.png"></div></td><td><div><img class="chess" name="mychess" src="img/Shizhang.png"></div></td><td><div><img class="chess" name="mychess" name="mychess" src="img/Lianzhang.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="mychess" src="img/Luzhang.png"></div></td><td></td><td><div><img class="chess" name="mychess" src="img/Tuanzhang.png"></div></td><td></td><td><div><img class="chess" name="mychess" src="img/Luzhang.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="mychess" src="img/Paizhang.png"></div></td><td><div><img class="chess" name="mychess" src="img/Shizhang.png"></div></td><td></td><td><div><img class="chess" name="mychess" src="img/Siling.png"></div></td><td><div><img class="chess" name="mychess" src="img/Paizhang.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="mychess" src="img/Yingzhang.png"></div></td><td></td><td><div><img class="chess" name="mychess" src="img/Paizhang.png"></div></td><td></td><td><div><img class="chess" name="mychess" src="img/Tuanzhang.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="mychess" src="img/Gongbing.png"></div></td><td><div><img class="chess" name="mychess" src="img/Dilei.png"></div></td><td><div><img class="chess" name="mychess" src="img/Dilei.png"></div></td><td><div><img class="chess" name="mychess" src="img/Gongbing.png"></div></td><td><div><img class="chess" name="mychess" src="img/Gongbing.png"></div></td>
+            </tr>
+            <tr>
+                <td><div><img class="chess" name="mychess" src="img/Zhadan.png"></div></td><td><div><img class="chess" name="mychess" src="img/Junqi.png"></div></td><td><div><img class="chess" name="mychess" src="img/Dilei.png"></div></td><td><div><img class="chess" name="mychess" src="img/Zhadan.png"></div></td><td><div><img class="chess" name="mychess" src="img/Yingzhang.png"></div></td>
+            </tr>
+        </table>        
+        </div>
+        <!-- the chessboard end here -->        
+    </body>
+</html>
