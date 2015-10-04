@@ -71,7 +71,7 @@
     chess[2] = "img/Shizhang.png";
     chess[3] = "img/Luzhang.png";
     chess[4] = "img/Tuanzhang.png";
-    chess[5] = "img/Yinzhang.png";
+    chess[5] = "img/Yingzhang.png";
     chess[6] = "img/Lianzhang.png";
     chess[7] = "img/Paizhang.png";
     chess[8] = "img/Gongbing.png";
@@ -151,8 +151,7 @@
 				console.log(tdid);
 				
 				if( tdid%5==0 || tdid%5==2 || tdid%5==4 ){					
-					//console.log($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());	
-					console.log($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());			
+					//console.log($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());						
 					$("#" + tdid).children().insertAfter($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());					
 				}
 				else{
@@ -195,8 +194,7 @@
                     chess2 = chess.indexOf(chess[i]);                    
                 }
             }
-        }
-        
+        }                
         
         //// Actural rules and logic start as below function
         function compareChess(cmpThisCell,twoChess){
