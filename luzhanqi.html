@@ -138,18 +138,21 @@
             //console.log(cmpThisCell);
             compareChess(cmpThisCell, twoChess);
             
-            //// remove the empty div because it will occupy the <td> space and make the height increased
+            // remove the empty div because it will occupy the <td> space and make the height increased
             $(".useless").remove();
             
             //// computer AI program try to move on9ly 
             if(step%2 == 1){
-				$("#realboard td").each(function() {
+				addDivInEmptyTD(); 
+				$("table td").each(function() {
 					//console.log( $("table td").find("img[name='enchess']").parent().parent().last().get(0).id );
-					tdid = parseInt($("#realboard td").find("img[name='enchess']").parent().parent().last().get(0).id);
+					tdid = parseInt($("table td").find("img[name='enchess']").parent().parent().last().get(0).id);
 				});
+				console.log(tdid);
 				
 				if( tdid%5==0 || tdid%5==2 || tdid%5==4 ){					
-					//console.log($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());				
+					//console.log($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());	
+					console.log($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());			
 					$("#" + tdid).children().insertAfter($("#" + tdid).parent().next().find( "td#" + (tdid+5) ).children());					
 				}
 				else{
@@ -159,7 +162,7 @@
 				
 				//console.log($("table td").find("img[name='enchess']").parent().parent().last());
 				
-				cmpThisCell = $("#realboard td").find("img[name='enchess']").parent().parent().last();
+				cmpThisCell = $("table td").find("img[name='enchess']").parent().parent().last();
 				twoChess = $(cmpThisCell).find(".chess").map(function(){
 						   return $(this).attr("src")}).get(); 
 				findImgSrc(twoChess);				
@@ -170,8 +173,8 @@
                 step = step + 1;
             }
             
-            //// remove the empty div because it will occupy the <td> space and make the height increased
-            //$(".useless").remove();
+            // remove the empty div because it will occupy the <td> space and make the height increased
+            $(".useless").remove();
             
             //// add a empty div since the entire <div> tag was moved,
             //// so the empty div for others chess drag to the original cell
@@ -311,9 +314,9 @@
         <ul>
             <li>Please use firefox for fully functionalities because you can see which chess lost immediately after each drag & drop.</li>
             <li>If you use google chrome, please click on the < td > after each drag & drop to see which chess lost.</li>
-            <li>If you want the timer, please uncomment line 294 in the source code. maxium can set to 99 seconds.</li>
+            <li>If you want the timer, please uncomment line 297 in the source code. maxium can set to 99 seconds.</li>
             <li>stupid AI implemented, need to debug.</li>
-            <li>The source code can download in my github: <a href="https://github.com/shunwatai/Luzhanqi">https://github.com/shunwatai/Luzhanqi</a></li>
+            <li>The source code can download in the github: <a href="https://github.com/shunwatai/Luzhanqi">here</a></li>
         </ul>
         <hr>
         <div id="buttons">
