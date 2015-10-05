@@ -1,7 +1,7 @@
 <html>
 <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
     <title>comp3421 assignment1 question1</title>
     
     <style>
@@ -106,7 +106,7 @@
         //// so the empty div for others chess drag to the original cell
         addDivInEmptyTD();
         
-        // add id in each div for silly AI to move
+        //// add id in each div for silly AI to move
         $("#realboard td").each(function(){            
             $(this).prop( "id", i++ );          
         });
@@ -145,7 +145,7 @@
             
             //// computer AI program try to move on9ly 
             if(step%2 == 1){
-				addDivInEmptyTD(); 
+				addDivInEmptyTD(); // add empty <div> for AI to InsertAfter 
 				$("table td").each(function() {
 					//console.log( $("table td").find("img[name='enchess']").parent().parent().last().get(0).id );
 					tdid = parseInt($("table td").find("img[name='enchess']").parent().parent().last().get(0).id);
@@ -158,6 +158,15 @@
 				}
 				else{
 					//console.log($("#" + tdid).next().children());
+					$("#" + tdid).children().insertAfter($("#" + tdid).next().children());					
+				}
+				
+				if(  tdid==64 ){
+					console.log("bottom right corner, should turn left");
+					$("#" + tdid).children().insertAfter($("#" + tdid).prev().children());					
+				}
+				else if ( tdid==60 || tdid==61 || tdid==62 || tdid==63 ){
+					console.log("reached to bottom, should turn right");
 					$("#" + tdid).children().insertAfter($("#" + tdid).next().children());					
 				}
 				
@@ -174,7 +183,7 @@
                 step = step + 1;
             }
             
-            // remove the empty div because it will occupy the <td> space and make the height increased
+            //// remove the empty div because it will occupy the <td> space and make the height increased
             $(".useless").remove();
             
             //// add a empty div since the entire <div> tag was moved,
@@ -201,7 +210,15 @@
         //// Actural rules and logic start as below function
         function compareChess(cmpThisCell,twoChess){
             if(chess2 > -1 && chess1 > -1){
-                if(chess1==8 && chess2==10){ // if chess1 is engineer & chess2 is landmine
+				if(chess1==11){
+					alert("game finished");
+					$(cmpThisCell).find("img[src='" + chess[chess1] + "']").parent("div").remove();					
+				}
+				else if(chess2==11){
+					alert("game finished");
+					$(cmpThisCell).find("img[src='" + chess[chess2] + "']").parent("div").remove();
+				}
+				else if(chess1==8 && chess2==10){ // if chess1 is engineer & chess2 is landmine
                     $(cmpThisCell).find("img[src='" + chess[chess2] + "']").parent("div").remove();
                 }
                 else if(chess2==8 && chess1==10){ // if chess2 is engineer & chess1 is landmine
@@ -252,11 +269,11 @@
 		}        
         
         // reveal enery chess's cover temporarily. Debug/Cheating use
-        $("#cheat").mousedown(function(){			
-			$(".cover").hide();			
+        $("#cheat").mousedown(function(){
+			$(".cover").hide();
         });
-        $("#cheat").mouseup(function(){			
-			$(".cover").show();			
+        $("#cheat").mouseup(function(){	
+			$(".cover").show();
         });
         
         
@@ -314,9 +331,9 @@
         <ul>
             <li>Please use firefox for fully functionalities because you can see which chess lost immediately after each drag & drop.</li>
             <li>If you use google chrome, please click on the < td > after each drag & drop to see which chess lost.</li>
-            <li>If you want the timer, please uncomment line 297 in the source code. maxium can set to 99 seconds.</li>
+            <li>If you want the timeout alert, please uncomment line 314 in the source code and set the timer and click "start" before play. maxium can set to 99 seconds.</li>
             <li>stupid AI implemented, need to debug.</li>
-            <li>The source code can download in the github: <a href="https://github.com/shunwatai/Luzhanqi">here</a></li>
+            <li>The source code can download in my github: <a href="https://github.com/shunwatai/Luzhanqi">https://github.com/shunwatai/Luzhanqi</a></li>
         </ul>
         <hr>
         <div id="buttons">
@@ -346,7 +363,7 @@
             <tr>
                 <td><div><img class="chess" name="enchess" src="img/Lianzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Lianzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Lianzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" src="img/Luzhang.png"><img class="cover" src="img/cover.png"></div></td><td><div><img class="chess" name="enchess" name="enchess" src="img/Luzhang.png"><img class="cover" src="img/cover.png"></div></td>
             </tr>
-            <!--^^^^^^^^^  enery chess  ^^^^^^^^^^-->
+            <!--^^^^^^^^^  enermy chess  ^^^^^^^^^^-->
             <tr><td> </td><td> </td><td> </td><td> </td><td> </td></tr>
             <!--VVVVVVVVVV  your chess  VVVVVVVVVV-->
             <tr>
